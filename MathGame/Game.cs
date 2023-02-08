@@ -11,45 +11,42 @@ namespace MathGame
 {
     public class Game
     {
-        public int[] Numbers { get; set; } = new int[2];
-        public List<string> GameHistory;
+        private int[] Numbers { get; set; }
+        private List<string> GameHistory { get; set; }
+        private readonly Random Random = new Random();
 
-        public Game(int[] numbers, List<string> gameHistory)
-        {
-            Numbers = numbers;
-            GameHistory = gameHistory;
-        }
-        public void PlayGame(List<string> gameHistory)
+        public void PlayGame()
         {
             bool isGameRunning = true;
+            GameHistory = new List<string>();
 
             while (isGameRunning)
             {
                 Console.WriteLine("Welcome to the math game, choose which type would you like to play:");
                 Console.WriteLine("A - addition game\nS - substraction game\nM - multiplication game\nD - division game\nV - view game history\nQ - quit");
 
-                var gameSelected = Console.ReadLine().Trim().ToUpper();
+                string gameSelected = Console.ReadLine().Trim().ToUpper();
 
                 switch (gameSelected)
                 {
                     case "A":
-                        AdditionGame("You chose addition\n", gameHistory);
+                        AdditionGame("You chose addition\n");
                         break;
                     case "S":
-                        SubstractionGame("You chose substraction\n", gameHistory);
+                        SubstractionGame("You chose substraction\n");
                         break;
                     case "M":
-                        MultiplicationGame("You chose multiplication\n", gameHistory);
+                        MultiplicationGame("You chose multiplication\n");
                         break;
                     case "D":
-                        DivisionGame("You chose division\n", gameHistory);
+                        DivisionGame("You chose division\n");
                         break;
                     case "V":
-                        ViewHistory(gameHistory);
+                        ViewHistory();
                         break;
                     case "Q":
                         Console.WriteLine("Quitting game...\n");
-                        Environment.Exit(0);
+                        isGameRunning = false;
                         break;
                 };
 
@@ -57,18 +54,16 @@ namespace MathGame
 
         }
 
-
-
-        public void AdditionGame(string message, List<string> gameHistory)
+        private void AdditionGame(string message)
         {
-            var score = 0;
+            int score = 0;
             Console.WriteLine(message);
             for (int i = 0; i < 6; i++)
             {
-                GetTwoNumbersBelowHundred();
+                GetTwoNumbersUpTo(100);
                 Console.WriteLine("What's the result of this operation?");
                 Console.WriteLine($"{Numbers[0]} + {Numbers[1]}\n");
-                var sum = Console.ReadLine();
+                string sum = Console.ReadLine();
                 if (int.Parse(sum) == Numbers[0] + Numbers[1])
                 {
                     Console.WriteLine("Your answer is correct.");
@@ -80,20 +75,21 @@ namespace MathGame
                 }
 
             }
-            AddToHistory(gameHistory, "Addition", score);
+            AddToHistory("Addition", score);
             Console.WriteLine($"Game over, your score is {score}\n");
             StartNewGame();
         }
-        public void SubstractionGame(string message, List<string> gameHistory)
+
+        private void SubstractionGame(string message)
         {
-            var score = 0;
+            int score = 0;
             Console.WriteLine(message);
             for (int i = 0; i < 6; i++)
             {
-                GetTwoNumbersBelowHundred();
+                GetTwoNumbersUpTo(100);
                 Console.WriteLine("What's the result of this operation?");
                 Console.WriteLine($"{Numbers[0]} - {Numbers[1]}\n");
-                var difference = Console.ReadLine();
+                string difference = Console.ReadLine();
                 if (int.Parse(difference) == Numbers[0] - Numbers[1])
                 {
                     Console.WriteLine("Your answer is correct.");
@@ -105,23 +101,22 @@ namespace MathGame
                 }
 
             }
-            AddToHistory(gameHistory, "Substraction", score);
+            AddToHistory("Substraction", score);
             Console.WriteLine($"Game over, your score is {score}\n");
             StartNewGame();
-
-
         }
-        public void MultiplicationGame(string message, List<string> gameHistory)
+
+        private void MultiplicationGame(string message)
         {
-            var score = 0;
+            int score = 0;
             Console.WriteLine(message);
 
             for (int i = 0; i < 6; i++)
             {
-                GetTwoNumbersBelowForty();
+                GetTwoNumbersUpTo(40);
                 Console.WriteLine("What's the result of this operation?");
                 Console.WriteLine($"{Numbers[0]} * {Numbers[1]}\n");
-                var product = Console.ReadLine();
+                string product = Console.ReadLine();
                 if (int.Parse(product) == Numbers[0] * Numbers[1])
                 {
                     Console.WriteLine("Your answer is correct.");
@@ -133,26 +128,27 @@ namespace MathGame
                 }
 
             }
-            AddToHistory(gameHistory, "Multiplication", score);
+            AddToHistory("Multiplication", score);
             Console.WriteLine($"Game over, your score is {score}\n");
             StartNewGame();
         }
-        public void DivisionGame(string message, List<string> gameHistory)
+
+        private void DivisionGame(string message)
         {
-            var score = 0;
+            int score = 0;
             Console.WriteLine(message);
 
             for (int i = 0; i < 6; i++)
             {
-                GetTwoNumbersBelowForty();
+                GetTwoNumbersUpTo(40);
                 while (Numbers[0] % Numbers[1] != 0)
                 {
-                    GetTwoNumbersBelowForty();
+                    GetTwoNumbersUpTo(40);
                 }
 
                 Console.WriteLine("What's the result of this operation?");
                 Console.WriteLine($"{Numbers[0]} / {Numbers[1]}\n");
-                var quotient = Console.ReadLine();
+                string quotient = Console.ReadLine();
                 if (int.Parse(quotient) == Numbers[0] / Numbers[1])
                 {
                     Console.WriteLine("Your answer is correct.");
@@ -164,45 +160,38 @@ namespace MathGame
                 }
 
             }
-            AddToHistory(gameHistory, "Division", score);
+            AddToHistory("Division", score);
             Console.WriteLine($"Game over, your score is {score}\n");
             StartNewGame();
         }
-        public void ViewHistory(List<string> gameHistory)
+
+        private void ViewHistory()
         {
-            foreach (string item in gameHistory)
+            foreach (string item in GameHistory)
             {
                 Console.WriteLine(item);
+                Console.WriteLine();
             }
         }
-        public int[] GetTwoNumbersBelowHundred()
-        {
-            var random = new Random();
-            Numbers[0] = random.Next(0, 100);
-            Numbers[1] = random.Next(0, 100);
 
-            return Numbers;
-        }
-        public int[] GetTwoNumbersBelowForty()
+        private int[] GetTwoNumbersUpTo(int upperLimit)
         {
-            var random = new Random();
-            Numbers[0] = random.Next(1, 40);
-            Numbers[1] = random.Next(1, 40);
+            Numbers = new int[2];
+            Numbers[0] = Random.Next(1, upperLimit);
+            Numbers[1] = Random.Next(1, upperLimit);
 
             return Numbers;
         }
 
-        public void StartNewGame()
+        private void StartNewGame()
         {
             Console.WriteLine("Press any key to start a new game.");
             Console.ReadKey();
             Console.Clear();
-
         }
-        public void AddToHistory(List<string> gameHistory, string gameType, int score)
-        {
-            gameHistory.Add($"{DateTime.Now} - {gameType}: {score} points");
+        private void AddToHistory(string gameType, int score)
+        {            
+            GameHistory.Add($"{DateTime.Now} - {gameType}: {score} points");
         }
-
     }
 }
