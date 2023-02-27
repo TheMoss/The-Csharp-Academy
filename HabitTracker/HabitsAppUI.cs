@@ -18,7 +18,7 @@ namespace HabitTracker
         public IMongoCollection<BsonDocument> MongoCollection { get; set; }
 
         MongoDatabaseOperations dbOperations = new();
-        
+
         public void MainMenu()
         {
             Console.WriteLine("1 - view all records");
@@ -28,7 +28,7 @@ namespace HabitTracker
             Console.WriteLine("0 - quit");
 
             string chosenOption = Console.ReadLine();
-
+            Console.Clear();
             switch (chosenOption)
             {
                 case "0":
@@ -38,17 +38,18 @@ namespace HabitTracker
                 case "1":
                     dbOperations.ReadAllRecords(MongoCollection);
                     Console.WriteLine("\nAll documents in the collection are listed. Press any key to return to main menu.");
-                    Console.ReadLine();
+                    Console.ReadKey();
                     break;
 
                 case "2":
                     GetQuantity();
+                    Console.Clear();
                     GetDate();
                     var newDocument = new HabitModel(VerifiedDate, VerifiedQuantity);
-                    var bsonDoc = newDocument.ToBsonDocument();
-                   dbOperations.CreateRecord(MongoCollection, bsonDoc);
+                    var bsonDocument = newDocument.ToBsonDocument();
+                    dbOperations.CreateRecord(MongoCollection, bsonDocument);
                     Console.WriteLine("\nNew record created, press any key to return to menu.");
-                    Console.ReadLine();
+                    Console.ReadKey();
                     break;
 
                 case "3":
@@ -59,38 +60,42 @@ namespace HabitTracker
                     dbOperations.DeleteRecord();
                     break;
             }
-            
             Console.Clear();
         }
 
         public int GetQuantity()
         {
-            Console.WriteLine("How many glasses of water did you drink? Use only integers");
+            Console.Clear();
+            Console.WriteLine("How many glasses of water did you drink? Use only integers. Write 0 to return to main menu.");
             string userQuantity = Console.ReadLine();
+            IsInputZero(userQuantity);
             IsQuantityInteger(userQuantity);
             return VerifiedQuantity;
         }
 
         public void IsQuantityInteger(string userQuantity)
         {
+            IsInputZero(userQuantity);
             bool isInteger = int.TryParse(userQuantity, out int finalQuantity);
             if (isInteger)
             {
                 Console.WriteLine("The value is an integer.");
                 VerifiedQuantity = finalQuantity;
             }
-            else if (userQuantity== "0") 
-            {
-                
-                QuitToMainMenu();
-            }
             else
             {
                 Console.WriteLine("The value isn't an integer, try again.");
+                Console.ReadKey();
                 GetQuantity();
             }
         }
-
+        private void IsInputZero(string consoleInput)
+        {
+            if (consoleInput == "0")
+            {
+                QuitToMainMenu();
+            }
+        }
         private void QuitToMainMenu()
         {
             Console.WriteLine("Returning to main menu...");
@@ -100,23 +105,20 @@ namespace HabitTracker
 
         public string GetDate()
         {
-            Console.WriteLine("When did you drink the water? Insert date in dd-mm-yyyy format.");
+            Console.WriteLine("When did you drink the water? Insert date in dd-mm-yyyy format. Write 0 to return to main menu.");
             string userDate = Console.ReadLine();
+            IsInputZero(userDate);
             IsDateFormatCorrect(userDate);
             return VerifiedDate;
         }
 
-        public void IsDateFormatCorrect(string userDate) 
+        public void IsDateFormatCorrect(string userDate)
         {
             bool isDate = DateTime.TryParse(userDate, out DateTime date);
-            if (isDate) 
+            if (isDate)
             {
                 Console.WriteLine("Date is in correct format.");
                 VerifiedDate = userDate;
-            }
-            else if(userDate == "0")
-            {
-                QuitToMainMenu();
             }
             else
             {
