@@ -12,6 +12,7 @@ namespace HabitTracker
 {
     internal class HabitsAppUI
     {
+
         public string VerifiedDate { get; set; }
         public int VerifiedQuantity { get; set; }
         public bool IsRunning { get; set; } = true;
@@ -27,74 +28,99 @@ namespace HabitTracker
             Console.WriteLine("4 - delete a record");
             Console.WriteLine("0 - quit");
 
+
             string chosenOption = Console.ReadLine();
             Console.Clear();
             switch (chosenOption)
             {
-                case "0":
+                case "0": //quit
                     IsRunning = false;
                     break;
 
-                case "1":
+                case "1": //view all
                     dbOperations.ReadAllRecords(MongoCollection);
                     Console.WriteLine("\nAll documents in the collection are listed. Press any key to return to main menu.");
-                    Console.ReadKey();
+                    Console.ReadLine();
                     break;
 
-                case "2":
+                case "2": //add new
+                    Console.WriteLine("How many glasses of water did you drink?");
                     GetQuantity();
                     Console.Clear();
                     GetDate();
                     var newDocument = new HabitModel(VerifiedDate, VerifiedQuantity);
                     var bsonDocument = newDocument.ToBsonDocument();
                     dbOperations.CreateRecord(MongoCollection, bsonDocument);
-                    Console.WriteLine("\nNew record created, press any key to return to menu.");
+                    Console.WriteLine("New record created, press any key to return to menu.");
                     Console.ReadKey();
                     break;
 
-                case "3":
-                    dbOperations.UpdateRecord();
+                case "3": 
+                    dbOperations.ReadAllRecords(MongoCollection);
+                    Console.WriteLine("\nA record from which day would you like to update?");
+                    GetDate();
+                    Console.WriteLine("What should be the new amount of glasses of water?");
+                    GetQuantity();
+                    dbOperations.UpdateRecord(MongoCollection, VerifiedDate, VerifiedQuantity);
+                    Console.WriteLine("Record edited, return to main menu");
+                    Console.ReadKey();
                     break;
 
-                case "4":
+                case "4": //delete record
                     dbOperations.DeleteRecord();
                     break;
             }
             Console.Clear();
         }
 
-        public int GetQuantity()
+        private int GetQuantity()
         {
-            Console.Clear();
-            Console.WriteLine("How many glasses of water did you drink? Use only integers. Write 0 to return to main menu.");
+            Console.WriteLine("Use only integers. Write 0 to return to main menu.");
             string userQuantity = Console.ReadLine();
-            IsInputZero(userQuantity);
-            IsQuantityInteger(userQuantity);
+            while (true)
+            {
+                if (IsInputZero(userQuantity))
+                {
+                    QuitToMainMenu();
+                }
+                else if (!IsQuantityInteger(userQuantity))
+                {
+                    Console.WriteLine("The value wasn't an integer, try again. Write 0 to return to main menu.");
+                    userQuantity = Console.ReadLine();
+                }
+                else
+                {
+                    break;
+                }
+            }
             return VerifiedQuantity;
         }
 
-        public void IsQuantityInteger(string userQuantity)
+        private bool IsQuantityInteger(string userQuantity)
         {
+            Console.Clear();
             IsInputZero(userQuantity);
             bool isInteger = int.TryParse(userQuantity, out int finalQuantity);
             if (isInteger)
             {
                 Console.WriteLine("The value is an integer.");
                 VerifiedQuantity = finalQuantity;
+                return true;
             }
             else
             {
-                Console.WriteLine("The value isn't an integer, try again.");
-                Console.ReadKey();
-                GetQuantity();
+                return false;
             }
         }
-        private void IsInputZero(string consoleInput)
+
+
+        private bool IsInputZero(string consoleInput)
         {
             if (consoleInput == "0")
             {
                 QuitToMainMenu();
             }
+            return false;
         }
         private void QuitToMainMenu()
         {
@@ -103,27 +129,42 @@ namespace HabitTracker
             MainMenu();
         }
 
-        public string GetDate()
+        private string GetDate()
         {
-            Console.WriteLine("When did you drink the water? Insert date in dd-mm-yyyy format. Write 0 to return to main menu.");
+            Console.WriteLine("Insert the date in dd-mm-yyyy format. Write 0 to return to main menu.");
             string userDate = Console.ReadLine();
-            IsInputZero(userDate);
-            IsDateFormatCorrect(userDate);
+            while (true)
+            {
+                if (IsInputZero(userDate))
+                {
+                    QuitToMainMenu();
+                }
+                else if (!IsDateFormatCorrect(userDate))
+                {
+                    Console.WriteLine("Date format was incorrect, try again. Write 0 to return to main menu.");
+                    userDate = Console.ReadLine();
+                }
+                else
+                {
+                    break;
+                }
+            }
             return VerifiedDate;
         }
 
-        public void IsDateFormatCorrect(string userDate)
+        private bool IsDateFormatCorrect(string userDate)
         {
+            Console.Clear();
             bool isDate = DateTime.TryParse(userDate, out DateTime date);
             if (isDate)
             {
                 Console.WriteLine("Date is in correct format.");
                 VerifiedDate = userDate;
+                return true;
             }
             else
             {
-                Console.WriteLine("Format is incorrect, try again. Try again.");
-                GetDate();
+                return false;
             }
         }
     }
