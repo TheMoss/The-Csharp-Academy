@@ -44,49 +44,36 @@ namespace HabitTracker
                     break;
 
                 case "2": //add new
-                          
+
                     while (true)
                     {
                         Console.WriteLine("How many glasses of water did you drink?");
-
-                        if (GetQuantity() != 0)
-                        {
-                            if (GetDate() != "0")
-                            {
-                                var newDocument = new HabitModel(VerifiedDate, VerifiedQuantity);
-                                var bsonDocument = newDocument.ToBsonDocument();
-                                dbOperations.CreateRecord(MongoCollection, bsonDocument);
-                                Console.WriteLine("New record created, press any key to return to menu.");
-                                Console.ReadKey();
-                            }
-
-                        }
+                        GetQuantity();
+                        GetDate();
+                        var newDocument = new HabitModel(VerifiedDate, VerifiedQuantity);
+                        var bsonDocument = newDocument.ToBsonDocument();
+                        dbOperations.CreateRecord(MongoCollection, bsonDocument);
+                        Console.WriteLine("New record created, press any key to return to menu.");
+                        Console.ReadKey();
                         break;
                     }
                     break;
 
-                case "3":                   
-
-                    while (true)
-                    {
+                case "3":                    
+                    while (true)                   {
                         dbOperations.ReadAllRecords(MongoCollection);
                         Console.WriteLine("\nA record from which day would you like to update?");
-
-                        if (GetDate() != "0")
-                        {                                                       
-                            Console.WriteLine("\nWhat should be the new amount of glasses of water?");
-                            if (GetQuantity() != 0)
-                            {
-                                dbOperations.UpdateRecord(MongoCollection, VerifiedDate, VerifiedQuantity);
-                                Console.WriteLine("Record edited, press any key to return to main menu");
-                                Console.ReadKey();
-                            }
-                        };
+                        GetDate();
+                        Console.WriteLine("\nWhat should be the new amount of glasses of water?");
+                        GetQuantity();
+                        dbOperations.UpdateRecord(MongoCollection, VerifiedDate, VerifiedQuantity);
+                        Console.WriteLine("Press any key to return to main menu");
+                        Console.ReadKey();
                         break;
                     }
                     break;
 
-                    
+
 
                 case "4": //delete record
                     dbOperations.DeleteRecord();
@@ -95,18 +82,19 @@ namespace HabitTracker
             Console.Clear();
         }
 
-        
+
         private int GetQuantity()
         {
-            
-            Console.WriteLine("Use only integers. Write 0 to return to main menu.");
+
+            Console.WriteLine("Use only integers.");
             string userQuantity = Console.ReadLine();
             while (true)
             {
                 if (!IsQuantityInteger(userQuantity))
-                {
+                {                   
+
                     Console.Clear();
-                    Console.WriteLine("The value wasn't an integer, try again. Write 0 to return to main menu.");
+                    Console.WriteLine("The value wasn't an integer, try again.");
                     userQuantity = Console.ReadLine();
                 }
                 else
@@ -114,11 +102,12 @@ namespace HabitTracker
                     break;
                 }
             }
+            Console.Clear();
             return VerifiedQuantity;
         }
 
         private bool IsQuantityInteger(string userQuantity)
-        {            
+        {
             bool isInteger = int.TryParse(userQuantity, out int finalQuantity);
             if (isInteger)
             {
@@ -132,34 +121,29 @@ namespace HabitTracker
             }
         }
 
-
-
         private string GetDate()
         {
-            Console.Clear(); 
-            Console.WriteLine("Insert the date in dd-mm-yyyy format. Write 0 to return to main menu.");
+            Console.WriteLine("Insert the date in dd-mm-yyyy format.");
             string userDate = Console.ReadLine();
-            bool isReturnToMenu = false;
-            while (!isReturnToMenu)
+            while (true)
             {
-                if (userDate == "0")
+                if (!IsDateFormatCorrect(userDate))
                 {
-                    return "0";
-                }
-                else if (!IsDateFormatCorrect(userDate))
-                {
-                    Console.Clear();
-                    Console.WriteLine("Date format was incorrect, try again. Write 0 to return to main menu.");
+                    
+                    Console.WriteLine("Date format was incorrect, try again.");
                     userDate = Console.ReadLine();
+                    Console.Clear();
                 }
-                break;
+                else
+                {
+                    break;
+                }
             }
-
+            Console.Clear();
             return VerifiedDate;
         }
-
         private bool IsDateFormatCorrect(string userDate)
-        {            
+        {
             bool isDate = DateTime.TryParse(userDate, out DateTime date);
             if (isDate)
             {
