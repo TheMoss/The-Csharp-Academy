@@ -16,7 +16,7 @@ namespace HabitTracker
         public string VerifiedDate { get; set; }
         public int VerifiedQuantity { get; set; }
         public bool IsRunning { get; set; } = true;
-        public IMongoCollection<BsonDocument> MongoCollection { get; set; }
+        public IMongoCollection<HabitModel> MongoCollection { get; set; }
 
         MongoDatabaseOperations dbOperations = new();
 
@@ -51,25 +51,25 @@ namespace HabitTracker
                         GetQuantity();
                         GetDate();
                         var newDocument = new HabitModel(VerifiedDate, VerifiedQuantity);
-                        var bsonDocument = newDocument.ToBsonDocument();
-                        dbOperations.CreateRecord(MongoCollection, bsonDocument);          
+
+                        dbOperations.CreateRecord(MongoCollection, newDocument);
                         break;
                     }
                     break;
 
                 case "3":
-                    
+
                     while (true)
                     {
                         dbOperations.ReadAllRecords(MongoCollection);
-                        
+
                         Console.WriteLine("\nA record from which day would you like to update?");
                         GetDate();
                         Console.WriteLine("\nWhat should be the new amount of glasses of water?");
                         GetQuantity();
-                        
+
                         dbOperations.UpdateRecord(MongoCollection, VerifiedDate, VerifiedQuantity);
-                        
+
                         break;
                     }
                     break;
@@ -77,25 +77,25 @@ namespace HabitTracker
 
 
                 case "4": //delete record
-                    
+
                     while (true)
                     {
                         dbOperations.ReadAllRecords(MongoCollection);
-                        
+
                         Console.WriteLine("\nA record from which day would you like to delete?");
                         GetDate();
                         Console.WriteLine("Are you sure? Write Y to continue.");
 
                         string userInput = Console.ReadLine();
                         if (userInput == "Y")
-                        {                            
-                            dbOperations.DeleteRecord(MongoCollection, VerifiedDate);                            
+                        {
+                            dbOperations.DeleteRecord(MongoCollection, VerifiedDate);
                         }
                         else
                         {
-                            Console.WriteLine("Returning to main menu...");                            
+                            Console.WriteLine("Returning to main menu...");
                         }
-                        Thread.Sleep(1000);
+                        Thread.Sleep(800);
                         break;
                     }
                     break;
@@ -104,7 +104,7 @@ namespace HabitTracker
             Console.Clear();
         }
 
-       
+
         private int GetQuantity()
         {
 
