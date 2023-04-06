@@ -10,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HabitTracker
 {
-    internal class HabitsAppUI
+    public class HabitsAppUI
     {
 
         public string VerifiedDate { get; set; }
@@ -52,23 +52,24 @@ namespace HabitTracker
                         GetDate();
                         var newDocument = new HabitModel(VerifiedDate, VerifiedQuantity);
                         var bsonDocument = newDocument.ToBsonDocument();
-                        dbOperations.CreateRecord(MongoCollection, bsonDocument);
-                        Console.WriteLine("New record created, press any key to return to menu.");
-                        Console.ReadKey();
+                        dbOperations.CreateRecord(MongoCollection, bsonDocument);          
                         break;
                     }
                     break;
 
-                case "3":                    
-                    while (true)                   {
+                case "3":
+                    
+                    while (true)
+                    {
                         dbOperations.ReadAllRecords(MongoCollection);
+                        
                         Console.WriteLine("\nA record from which day would you like to update?");
                         GetDate();
                         Console.WriteLine("\nWhat should be the new amount of glasses of water?");
                         GetQuantity();
+                        
                         dbOperations.UpdateRecord(MongoCollection, VerifiedDate, VerifiedQuantity);
-                        Console.WriteLine("Press any key to return to main menu");
-                        Console.ReadKey();
+                        
                         break;
                     }
                     break;
@@ -76,13 +77,34 @@ namespace HabitTracker
 
 
                 case "4": //delete record
-                    dbOperations.DeleteRecord();
+                    
+                    while (true)
+                    {
+                        dbOperations.ReadAllRecords(MongoCollection);
+                        
+                        Console.WriteLine("\nA record from which day would you like to delete?");
+                        GetDate();
+                        Console.WriteLine("Are you sure? Write Y to continue.");
+
+                        string userInput = Console.ReadLine();
+                        if (userInput == "Y")
+                        {                            
+                            dbOperations.DeleteRecord(MongoCollection, VerifiedDate);                            
+                        }
+                        else
+                        {
+                            Console.WriteLine("Returning to main menu...");                            
+                        }
+                        Thread.Sleep(1000);
+                        break;
+                    }
                     break;
+
             }
             Console.Clear();
         }
 
-
+       
         private int GetQuantity()
         {
 
@@ -90,8 +112,8 @@ namespace HabitTracker
             string userQuantity = Console.ReadLine();
             while (true)
             {
-                if (!IsQuantityInteger(userQuantity))
-                {                   
+                if (!IsUserInputInteger(userQuantity))
+                {
 
                     Console.Clear();
                     Console.WriteLine("The value wasn't an integer, try again.");
@@ -106,7 +128,7 @@ namespace HabitTracker
             return VerifiedQuantity;
         }
 
-        private bool IsQuantityInteger(string userQuantity)
+        public bool IsUserInputInteger(string userQuantity)
         {
             bool isInteger = int.TryParse(userQuantity, out int finalQuantity);
             if (isInteger)
@@ -129,7 +151,7 @@ namespace HabitTracker
             {
                 if (!IsDateFormatCorrect(userDate))
                 {
-                    
+
                     Console.WriteLine("Date format was incorrect, try again.");
                     userDate = Console.ReadLine();
                     Console.Clear();
@@ -142,7 +164,7 @@ namespace HabitTracker
             Console.Clear();
             return VerifiedDate;
         }
-        private bool IsDateFormatCorrect(string userDate)
+        public bool IsDateFormatCorrect(string userDate)
         {
             bool isDate = DateTime.TryParse(userDate, out DateTime date);
             if (isDate)
